@@ -1,0 +1,64 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id String @id @default(cuid())
+  name String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  game Game @relation(fields: [gameId], references: [id])
+  gameId String
+}
+
+model Game {
+  id String @id @default(cuid())
+
+  users User[]
+}
+
+enum CardType {
+  WHITE
+  BLACK
+}
+model Card {
+  id String @id @default(cuid())
+  type CardType
+  pick Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  cardContent CardContent[]
+  
+  cardSet CardSet @relation(fields: [cardSetId], references: [id], onDelete: Cascade)
+  cardSetId String
+}
+
+enum Language {
+  ENGLISH
+  SPANISH
+}
+model CardContent {
+  id String @id @default(cuid())
+  content String
+
+  language Language
+
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  cardId String
+}
+
+model CardSet {
+  id String @id @default(cuid()) 
+  name String @unique
+
+  cards Card[]
+}
